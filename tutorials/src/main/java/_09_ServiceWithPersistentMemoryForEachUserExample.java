@@ -38,7 +38,8 @@ public class _09_ServiceWithPersistentMemoryForEachUserExample {
 
         ChatModel model = OpenAiChatModel.builder()
                 .apiKey(ApiKeys.OPENAI_API_KEY)
-                .modelName(GPT_4_O_MINI)
+                .baseUrl("https://api.deepseek.com")
+                .modelName("deepseek-v4-flash")
                 .build();
 
         Assistant assistant = AiServices.builder(Assistant.class)
@@ -46,13 +47,13 @@ public class _09_ServiceWithPersistentMemoryForEachUserExample {
                 .chatMemoryProvider(chatMemoryProvider)
                 .build();
 
-        System.out.println(assistant.chat(1, "Hello, my name is Klaus"));
-        System.out.println(assistant.chat(2, "Hi, my name is Francine"));
+        System.out.println(assistant.chat(1, "你好，我的名字是克劳斯"));
+        System.out.println(assistant.chat(2, "嗨，我的名字是弗朗辛"));
 
-        // Now, comment out the two lines above, uncomment the two lines below, and run again.
+        // 现在，注释掉上面的两行，取消下面两行的注释，然后重新运行。
 
-        // System.out.println(assistant.chat(1, "What is my name?"));
-        // System.out.println(assistant.chat(2, "What is my name?"));
+        // System.out.println(assistant.chat(1, "我的名字是什么？"));
+        // System.out.println(assistant.chat(2, "我的名字是什么？"));
     }
 
     // You can create your own implementation of ChatMemoryStore and store chat memory whenever you'd like

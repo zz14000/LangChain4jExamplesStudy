@@ -13,6 +13,9 @@ import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 import static java.time.Duration.ofSeconds;
 import static java.util.Arrays.asList;
 
+/**
+ * 简单提示词构建，格式化提示词构建，可以像标准输出一样使用占位符
+ */
 public class _03_PromptTemplate {
 
     static class Simple_Prompt_Template_Example {
@@ -21,16 +24,17 @@ public class _03_PromptTemplate {
 
             ChatModel model = OpenAiChatModel.builder()
                     .apiKey(ApiKeys.OPENAI_API_KEY)
-                    .modelName(GPT_4_O_MINI)
+                    .baseUrl("https://api.deepseek.com")
+                    .modelName("deepseek-v4-flash")
                     .timeout(ofSeconds(60))
                     .build();
 
-            String template = "Create a recipe for a {{dishType}} with the following ingredients: {{ingredients}}";
+            String template = "为{{dishType}}创建一个食谱，使用以下食材：{{ingredients}}";
             PromptTemplate promptTemplate = PromptTemplate.from(template);
 
             Map<String, Object> variables = new HashMap<>();
-            variables.put("dishType", "oven dish");
-            variables.put("ingredients", "potato, tomato, feta, olive oil");
+            variables.put("dishType", "烤箱菜肴");
+            variables.put("ingredients", "土豆、番茄、菲达奶酪、橄榄油");
 
             Prompt prompt = promptTemplate.apply(variables);
 
@@ -43,18 +47,18 @@ public class _03_PromptTemplate {
 
     static class Structured_Prompt_Template_Example {
         @StructuredPrompt({
-                "Create a recipe of a {{dish}} that can be prepared using only {{ingredients}}.",
-                "Structure your answer in the following way:",
+                "使用仅能使用{{ingredients}}制作的{{dish}}创建一个食谱。",
+                "按照以下结构组织你的回答：",
 
-                "Recipe name: ...",
-                "Description: ...",
-                "Preparation time: ...",
+                "食谱名称：...",
+                "描述：...",
+                "准备时间：...",
 
-                "Required ingredients:",
+                "所需食材：",
                 "- ...",
                 "- ...",
 
-                "Instructions:",
+                "制作步骤：",
                 "- ...",
                 "- ..."
         })
@@ -73,13 +77,14 @@ public class _03_PromptTemplate {
 
             ChatModel model = OpenAiChatModel.builder()
                     .apiKey(ApiKeys.OPENAI_API_KEY)
-                    .modelName(GPT_4_O_MINI)
+                    .baseUrl("https://api.deepseek.com")
+                    .modelName("deepseek-v4-flash")
                     .timeout(ofSeconds(60))
                     .build();
 
             Structured_Prompt_Template_Example.CreateRecipePrompt createRecipePrompt = new Structured_Prompt_Template_Example.CreateRecipePrompt(
-                    "salad",
-                    asList("cucumber", "tomato", "feta", "onion", "olives")
+                    "沙拉",
+                    asList("黄瓜", "番茄", "菲达奶酪", "洋葱", "橄榄")
             );
 
             Prompt prompt = StructuredPromptProcessor.toPrompt(createRecipePrompt);

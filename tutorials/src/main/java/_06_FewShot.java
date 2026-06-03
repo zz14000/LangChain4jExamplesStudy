@@ -18,7 +18,8 @@ public class _06_FewShot {
 
         OpenAiStreamingChatModel model = OpenAiStreamingChatModel.builder()
                 .apiKey(ApiKeys.OPENAI_API_KEY)
-                .modelName(GPT_4_O_MINI)
+                .baseUrl("https://api.deepseek.com")
+                .modelName("deepseek-v4-flash")
                 .timeout(ofSeconds(100))
                 .build();
 
@@ -60,16 +61,34 @@ public class _06_FewShot {
 
         model.chat(fewShotHistory, new StreamingChatResponseHandler() {
 
+            /**
+             * - 触发时机 ：每次接收到部分响应时立即调用
+             * - 作用 ：实时处理流式响应，将其打印到控制台
+             * - 特点 ：可以多次调用，每次调用处理部分响应
+             * - 类比 ：就像在写文章时，每写一个句子就打印出来一样
+             */
             @Override
             public void onPartialResponse(String partialResponse) {
                 System.out.print(partialResponse);
             }
 
+            /**
+             * - 触发时机 ：完整响应接收完成后调用
+             * - 作用 ：将完整响应存储到 CompletableFuture 中
+             * - 特点 ：只调用一次（如果出错）
+             * - 类比 ：就像在写文章时，写完最后一句话后，需要存储完整的内容一样
+             */
             @Override
             public void onCompleteResponse(ChatResponse completeResponse) {
                 futureChatResponse.complete(completeResponse);
             }
 
+            /**
+             * - 触发时机 ：在处理流式响应时发生错误时调用
+             * - 作用 ：将错误存储到 CompletableFuture 中
+             * - 特点 ：只调用一次（如果出错）
+             * - 类比 ：就像在写文章时，如果发生错误，需要记录下来一样
+             */
             @Override
             public void onError(Throwable error) {
                 futureChatResponse.completeExceptionally(error);

@@ -41,7 +41,8 @@ public class _10_ServiceWithToolsExample {
 
         ChatModel model = OpenAiChatModel.builder()
                 .apiKey(ApiKeys.OPENAI_API_KEY) // WARNING! Tools are not supported with "demo" API key
-                .modelName(GPT_4_O_MINI)
+                .baseUrl("https://api.deepseek.com")
+                .modelName("deepseek-v4-flash")
                 .strictTools(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-tools
                 .build();
 
@@ -51,7 +52,7 @@ public class _10_ServiceWithToolsExample {
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 
-        String question = "What is the square root of the sum of the numbers of letters in the words \"hello\" and \"world\"?";
+        String question = "单词\"hello\"和\"world\"的字母数之和的平方根是多少？";
 
         String answer = assistant.chat(question);
 

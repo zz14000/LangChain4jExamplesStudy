@@ -21,7 +21,8 @@ public class _08_AIServiceExamples {
 
     static ChatModel model = OpenAiChatModel.builder()
             .apiKey(ApiKeys.OPENAI_API_KEY)
-            .modelName(GPT_4_O_MINI)
+            .baseUrl("https://api.deepseek.com")
+            .modelName("deepseek-v4-flash")
             .timeout(ofSeconds(60))
             .build();
 
@@ -38,7 +39,7 @@ public class _08_AIServiceExamples {
 
             Assistant assistant = AiServices.create(Assistant.class, model);
 
-            String userMessage = "Translate 'Plus-Values des cessions de valeurs mobilières, de droits sociaux et gains assimilés'";
+            String userMessage = "翻译'Plus-Values des cessions de valeurs mobilières, de droits sociaux et gains assimilés'";
 
             String answer = assistant.chat(userMessage);
 
@@ -52,7 +53,7 @@ public class _08_AIServiceExamples {
 
         interface Chef {
 
-            @SystemMessage("You are a professional chef. You are friendly, polite and concise.")
+            @SystemMessage("你是一位专业厨师。你友好、有礼貌且简洁。")
             String answer(String question);
         }
 
@@ -60,7 +61,7 @@ public class _08_AIServiceExamples {
 
             Chef chef = AiServices.create(Chef.class, model);
 
-            String answer = chef.answer("How long should I grill chicken?");
+            String answer = chef.answer("我应该烤鸡肉多久？");
 
             System.out.println(answer); // Grilling chicken usually takes around 10-15 minutes per side ...
         }
@@ -70,11 +71,11 @@ public class _08_AIServiceExamples {
 
         interface TextUtils {
 
-            @SystemMessage("You are a professional translator into {{language}}")
-            @UserMessage("Translate the following text: {{text}}")
+            @SystemMessage("你是一位专业的{{language}}翻译员")
+            @UserMessage("将以下文本翻译成{{language}}：{{text}}")
             String translate(@V("text") String text, @V("language") String language);
 
-            @SystemMessage("Summarize every message from user in {{n}} bullet points. Provide only bullet points.")
+            @SystemMessage("将用户的每条消息总结成{{n}}个要点。只提供要点。")
             List<String> summarize(@UserMessage String text, @V("n") int n);
         }
 
@@ -82,12 +83,11 @@ public class _08_AIServiceExamples {
 
             TextUtils utils = AiServices.create(TextUtils.class, model);
 
-            String translation = utils.translate("Hello, how are you?", "italian");
+            String translation = utils.translate("你好，你好吗？", "意大利语");
             System.out.println(translation); // Ciao, come stai?
 
-            String text = "AI, or artificial intelligence, is a branch of computer science that aims to create "
-                    + "machines that mimic human intelligence. This can range from simple tasks such as recognizing "
-                    + "patterns or speech to more complex tasks like making decisions or predictions.";
+            String text = "人工智能（AI）是计算机科学的一个分支，旨在创造能够模拟人类智能的机器。"
+                    + "这可以涵盖从识别模式或语音等简单任务，到做出决策或预测等更复杂的任务。";
 
             List<String> bulletPoints = utils.summarize(text, 3);
             bulletPoints.forEach(System.out::println);
@@ -109,10 +109,10 @@ public class _08_AIServiceExamples {
 
         interface SentimentAnalyzer {
 
-            @UserMessage("Analyze sentiment of {{it}}")
+            @UserMessage("分析{{it}}的情感")
             Sentiment analyzeSentimentOf(String text);
 
-            @UserMessage("Does {{it}} have a positive sentiment?")
+            @UserMessage("{{it}}是否有积极的情感？")
             boolean isPositive(String text);
         }
 
@@ -120,10 +120,10 @@ public class _08_AIServiceExamples {
 
             SentimentAnalyzer sentimentAnalyzer = AiServices.create(SentimentAnalyzer.class, model);
 
-            Sentiment sentiment = sentimentAnalyzer.analyzeSentimentOf("It is good!");
+            Sentiment sentiment = sentimentAnalyzer.analyzeSentimentOf("这很好！");
             System.out.println(sentiment); // POSITIVE
 
-            boolean positive = sentimentAnalyzer.isPositive("It is bad!");
+            boolean positive = sentimentAnalyzer.isPositive("这很糟糕！");
             System.out.println(positive); // false
         }
     }
@@ -143,7 +143,7 @@ public class _08_AIServiceExamples {
 
         interface HotelReviewIssueAnalyzer {
 
-            @UserMessage("Please analyse the following review: |||{{it}}|||")
+            @UserMessage("请分析以下评论：|||{{it}}|||")
             List<IssueCategory> analyzeReview(String review);
         }
 
@@ -151,12 +151,13 @@ public class _08_AIServiceExamples {
 
             HotelReviewIssueAnalyzer hotelReviewIssueAnalyzer = AiServices.create(HotelReviewIssueAnalyzer.class, model);
 
-            String review = "Our stay at hotel was a mixed experience. The location was perfect, just a stone's throw away " +
-                    "from the beach, which made our daily outings very convenient. The rooms were spacious and well-decorated, " +
-                    "providing a comfortable and pleasant environment. However, we encountered several issues during our " +
-                    "stay. The air conditioning in our room was not functioning properly, making the nights quite uncomfortable. " +
-                    "Additionally, the room service was slow, and we had to call multiple times to get extra towels. Despite the " +
-                    "friendly staff and enjoyable breakfast buffet, these issues significantly impacted our stay.";
+            String review = "我们入住酒店的体验喜忧参半。位置非常完美，距离海滩仅一步之遥，" +
+                    "这让我们每天的出行都非常方便。房间宽敞，装饰精美，" +
+                    "提供舒适宜人的环境。然而，我们在" +
+                    "住宿期间遇到了几个问题。房间里的空调无法正常工作，让夜晚非常不舒服。" +
+                    "此外，客房服务很慢，我们不得不多次打电话才拿到额外的毛巾。尽管有" +
+                    "友好的员工和令人愉快的早餐自助餐，但这些" +
+                    "问题严重影响了我们的住宿体验。";
 
             List<IssueCategory> issueCategories = hotelReviewIssueAnalyzer.analyzeReview(review);
 
@@ -169,22 +170,22 @@ public class _08_AIServiceExamples {
 
         interface NumberExtractor {
 
-            @UserMessage("Extract number from {{it}}")
+            @UserMessage("从{{it}}中提取数字")
             int extractInt(String text);
 
-            @UserMessage("Extract number from {{it}}")
+            @UserMessage("从{{it}}中提取数字")
             long extractLong(String text);
 
-            @UserMessage("Extract number from {{it}}")
+            @UserMessage("从{{it}}中提取数字")
             BigInteger extractBigInteger(String text);
 
-            @UserMessage("Extract number from {{it}}")
+            @UserMessage("从{{it}}中提取数字")
             float extractFloat(String text);
 
-            @UserMessage("Extract number from {{it}}")
+            @UserMessage("从{{it}}中提取数字")
             double extractDouble(String text);
 
-            @UserMessage("Extract number from {{it}}")
+            @UserMessage("从{{it}}中提取数字")
             BigDecimal extractBigDecimal(String text);
         }
 
@@ -192,8 +193,8 @@ public class _08_AIServiceExamples {
 
             NumberExtractor extractor = AiServices.create(NumberExtractor.class, model);
 
-            String text = "After countless millennia of computation, the supercomputer Deep Thought finally announced "
-                    + "that the answer to the ultimate question of life, the universe, and everything was forty two.";
+            String text = "经过无数千年的计算，超级计算机'深思'终于宣布，"
+                    + "关于生命、宇宙及一切的终极问题的答案是四十二。";
 
             int intNumber = extractor.extractInt(text);
             System.out.println(intNumber); // 42
@@ -219,13 +220,13 @@ public class _08_AIServiceExamples {
 
         interface DateTimeExtractor {
 
-            @UserMessage("Extract date from {{it}}")
+            @UserMessage("从{{it}}中提取日期")
             LocalDate extractDateFrom(String text);
 
-            @UserMessage("Extract time from {{it}}")
+            @UserMessage("从{{it}}中提取时间")
             LocalTime extractTimeFrom(String text);
 
-            @UserMessage("Extract date and time from {{it}}")
+            @UserMessage("从{{it}}中提取日期和时间")
             LocalDateTime extractDateTimeFrom(String text);
         }
 
@@ -233,8 +234,8 @@ public class _08_AIServiceExamples {
 
             DateTimeExtractor extractor = AiServices.create(DateTimeExtractor.class, model);
 
-            String text = "The tranquility pervaded the evening of 1968, just fifteen minutes shy of midnight,"
-                    + " following the celebrations of Independence Day.";
+            String text = "1968 年的傍晚，独立日庆祝活动的余晖中，"
+                    + "一个名叫约翰的孩子在宁静的夜空下降生。";
 
             LocalDate date = extractor.extractDateFrom(text);
             System.out.println(date); // 1968-07-04
@@ -268,7 +269,7 @@ public class _08_AIServiceExamples {
 
         interface PersonExtractor {
 
-            @UserMessage("Extract a person from the following text: {{it}}")
+            @UserMessage("从以下文本中提取人物信息：{{it}}")
             Person extractPersonFrom(String text);
         }
 
@@ -277,10 +278,10 @@ public class _08_AIServiceExamples {
             ChatModel model = OpenAiChatModel.builder()
                     .apiKey(ApiKeys.OPENAI_API_KEY)
                     .modelName(GPT_4_O_MINI)
-                    // When extracting POJOs with the LLM that supports the "json mode" feature
-                    // (e.g., OpenAI, Azure OpenAI, Vertex AI Gemini, Ollama, etc.),
-                    // it is advisable to enable it (json mode) to get more reliable results.
-                    // When using this feature, LLM will be forced to output a valid JSON.
+                    // 当使用支持"json mode"功能的大语言模型提取 POJO 时
+                    // （如 OpenAI、Azure OpenAI、Vertex AI Gemini、Ollama 等），
+                    // 建议启用该功能（json mode）以获得更可靠的结果。
+                    // 使用此功能时，LLM 将被强制输出有效的 JSON。
                     .responseFormat("json_schema")
                     .strictJsonSchema(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-json-mode
                     .timeout(ofSeconds(60))
@@ -288,9 +289,8 @@ public class _08_AIServiceExamples {
 
             PersonExtractor extractor = AiServices.create(PersonExtractor.class, model);
 
-            String text = "In 1968, amidst the fading echoes of Independence Day, "
-                    + "a child named John arrived under the calm evening sky. "
-                    + "This newborn, bearing the surname Doe, marked the start of a new journey.";
+            String text = "1968 年，在独立日逐渐消逝的余晖中，"
+                    + "一个名叫约翰·多伊的孩子在宁静的傍晚降生。";
 
             Person person = extractor.extractPersonFrom(text);
 
@@ -304,29 +304,29 @@ public class _08_AIServiceExamples {
 
         static class Recipe {
 
-            @Description("short title, 3 words maximum")
+            @Description("简短标题，最多 3 个词")
             private String title;
 
-            @Description("short description, 2 sentences maximum")
+            @Description("简短描述，最多 2 句话")
             private String description;
 
-            @Description("each step should be described in 6 to 8 words, steps should rhyme with each other")
+            @Description("每个步骤用 6 到 8 个词描述，步骤之间要押韵")
             private List<String> steps;
 
             private Integer preparationTimeMinutes;
 
             @Override
             public String toString() {
-                return "Recipe {" +
-                        " title = \"" + title + "\"" +
-                        ", description = \"" + description + "\"" +
-                        ", steps = " + steps +
-                        ", preparationTimeMinutes = " + preparationTimeMinutes +
+                return "食谱 {" +
+                        " 标题 = \"" + title + "\"" +
+                        ", 描述 = \"" + description + "\"" +
+                        ", 步骤 = " + steps +
+                        ", 准备时间（分钟） = " + preparationTimeMinutes +
                         " }";
             }
         }
 
-        @StructuredPrompt("Create a recipe of a {{dish}} that can be prepared using only {{ingredients}}")
+        @StructuredPrompt("使用仅能使用{{ingredients}}制作的{{dish}}创建一个食谱")
         static class CreateRecipePrompt {
 
             private String dish;
@@ -345,10 +345,10 @@ public class _08_AIServiceExamples {
             ChatModel model = OpenAiChatModel.builder()
                     .apiKey(ApiKeys.OPENAI_API_KEY)
                     .modelName(GPT_4_O_MINI)
-                    // When extracting POJOs with the LLM that supports the "json mode" feature
-                    // (e.g., OpenAI, Azure OpenAI, Vertex AI Gemini, Ollama, etc.),
-                    // it is advisable to enable it (json mode) to get more reliable results.
-                    // When using this feature, LLM will be forced to output a valid JSON.
+                    // 当使用支持"json mode"功能的大语言模型提取 POJO 时
+                    //（如 OpenAI、Azure OpenAI、Vertex AI Gemini、Ollama 等），
+                    // 建议启用该功能（json mode）以获得更可靠的结果。
+                    // 使用此功能时，LLM 将被强制输出有效的 JSON。
                     .responseFormat("json_schema")
                     .strictJsonSchema(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-json-mode
                     .timeout(ofSeconds(60))
@@ -356,7 +356,7 @@ public class _08_AIServiceExamples {
 
             Chef chef = AiServices.create(Chef.class, model);
 
-            Recipe recipe = chef.createRecipeFrom("cucumber", "tomato", "feta", "onion", "olives", "lemon");
+            Recipe recipe = chef.createRecipeFrom("黄瓜", "番茄", "菲达奶酪", "洋葱", "橄榄", "柠檬");
 
             System.out.println(recipe);
             // Recipe {

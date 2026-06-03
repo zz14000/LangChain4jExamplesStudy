@@ -5,6 +5,9 @@ import dev.langchain4j.model.output.Response;
 
 import static dev.langchain4j.model.openai.OpenAiImageModelName.DALL_E_3;
 
+/**
+ * 调用模型生成图片
+ */
 public class _02_OpenAiImageModelExamples {
 
     public static void main(String[] args) {
@@ -15,7 +18,7 @@ public class _02_OpenAiImageModelExamples {
                 .build();
 
         Response<Image> response = model.generate(
-                "Swiss software developers with cheese fondue, a parrot and a cup of coffee");
+                "瑞士软件开发者，配着奶酪火锅、一只鹦鹉和一杯咖啡");
 
         System.out.println(response.content().url());
     }
