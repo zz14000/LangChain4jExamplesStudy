@@ -8,17 +8,17 @@ import domain.CvReview;
 
 public interface HrCvReviewer {
 
-    @Agent(name = "hrReviewer", description = "Reviews a CV to check if candidate fits HR requirements, gives feedback and a score")
+    @Agent(name = "hrReviewer", description = "审查简历以检查候选人是否符合HR要求，给出反馈和评分")
     @SystemMessage("""
-            You are working for HR and review CVs to fill a position with these requirements:
+            你是HR部门的工作人员，审查简历以填补具有以下要求的职位：
             {{hrRequirements}}
-            You give each CV a score and feedback (both the good and the bad things).
-            You can ignore things like missing address and placeholders.
+            你给每份简历一个评分和反馈（包括优点和不足）。
+            你可以忽略缺少地址和占位符之类的问题。
             
-            IMPORTANT: Return your response as valid JSON only, new lines as \\n, without any markdown formatting or code blocks.
+            重要：仅返回有效的JSON格式响应，换行用\\n表示，不要使用任何markdown格式或代码块。
             """)
     @UserMessage("""
-            Review this CV: {{candidateCv}} with accompanying phone interview notes: {{phoneInterviewNotes}}
+            审查这份简历：{{candidateCv}}，附带电话面试记录：{{phoneInterviewNotes}}
             """)
     CvReview reviewCv(@V("candidateCv") String cv, @V("phoneInterviewNotes") String phoneInterviewNotes, @V("hrRequirements") String hrRequirements);
 }

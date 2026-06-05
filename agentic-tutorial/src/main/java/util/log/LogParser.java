@@ -25,26 +25,26 @@ public class LogParser {
     
     public static void logUserMessage(String userMessage) {
         System.out.println("USER: " + truncateString(userMessage));
-        System.out.println(); // 2 newlines for clear separation
+        System.out.println(); // 2个换行符用于清晰分隔
         System.out.println();
     }
     
     public static void logAssistantResponse(String response) {
         System.out.println("MODEL: " + truncateString(response));
-        System.out.println(); // 2 newlines for clear separation
+        System.out.println(); // 2个换行符用于清晰分隔
         System.out.println();
     }
     
     public static void logAvailableTools(String tools) {
         System.out.println("\tAvailable tools: " + tools);
-        System.out.println(); // 2 newlines for clear separation
+        System.out.println(); // 2个换行符用于清晰分隔
         System.out.println();
     }
     
     public static void logToolCallRequest(String toolId, String toolName, String arguments) {
         System.out.println("MODEL REQUESTS TOOL CALL: " + toolName + " (id: " + toolId + ")");
         System.out.println("  Args: " + truncateString(arguments));
-        System.out.println(); // 2 newlines for clear separation
+        System.out.println(); // 2个换行符用于清晰分隔
         System.out.println();
     }
     
@@ -52,7 +52,7 @@ public class LogParser {
     public static void logToolCallResult(String toolId, String toolName, String result) {
         System.out.println("TOOL RESULT: " + toolName + " (id: " + toolId + ")");
         System.out.println("  Result: " + truncateString(result));
-        System.out.println(); // 2 newlines for clear separation
+        System.out.println(); // 2个换行符用于清晰分隔
         System.out.println();
     }
     
@@ -167,12 +167,12 @@ public class LogParser {
             }
             
         } catch (Exception e) {
-            // Ignore parsing errors
+            // 忽略解析错误
         }
     }
     
     private static String extractJsonFromLog(String logMessage) {
-        // Find the JSON body after "- body:"
+        // 在 "- body:" 之后查找JSON体
         Pattern pattern = Pattern.compile("- body:\\s*(.*?)(?=\\n\\n|$)", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(logMessage);
         

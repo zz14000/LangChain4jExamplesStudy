@@ -3,13 +3,13 @@ package domain;
 import dev.langchain4j.model.output.structured.Description;
 
 public class CvReview {
-    @Description("Score from 0 to 1 how likely you would invite this candidate to an interview")
+    @Description("从0到1的评分，表示你邀请该候选人面试的可能性")
     public double score;
 
-    @Description("Feedback on the CV, what is good, what needs improvement, what skills are missing, what red flags, ...")
+    @Description("对简历的反馈，优点、需要改进的地方、缺少的技能、危险信号等")
     public String feedback;
 
-    public CvReview() {} // no args constructor needed for deserialization, bcs other constructor is present!
+    public CvReview() {} // 反序列化需要的无参构造函数，因为存在其他构造函数！
 
     public CvReview(double score, String feedback) {
         this.score = score;

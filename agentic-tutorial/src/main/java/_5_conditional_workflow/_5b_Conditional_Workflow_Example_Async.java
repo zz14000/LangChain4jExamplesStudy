@@ -20,21 +20,21 @@ public class _5b_Conditional_Workflow_Example_Async {
     }
 
     /**
-     * This example demonstrates multiple fulfilled conditions and async agents that will
-     * allow consecutive agents to be called in parallel for faster execution.
-     * In this example:
-     * - condition 1: if the HrReview is good, the CV is passed to the manager for review,
-     * - condition 2: if the HrReview indicates missing information, the candidate is contacted for more info.
+     * 本示例演示了多个条件同时满足时，使用异步智能体
+     * 允许连续的智能体并行调用以加快执行速度。
+     * 在本示例中：
+     * - 条件1：如果HR审查通过，简历将传给经理审查，
+     * - 条件2：如果HR审查表明缺少信息，则联系候选人获取更多信息。
      */
 
     private static final ChatModel CHAT_MODEL = ChatModelProvider.createChatModel();
 
     public static void main(String[] args) throws IOException {
 
-        // 1. Create all async agents
+        // 1. 创建所有异步智能体
         ManagerCvReviewer managerCvReviewer = AgenticServices.agentBuilder(ManagerCvReviewer.class)
                 .chatModel(CHAT_MODEL)
-                .async(true) // async agent
+                .async(true) // 异步智能体
                 .outputKey("managerReview")
                 .build();
         EmailAssistant emailAssistant = AgenticServices.agentBuilder(EmailAssistant.class)
@@ -50,36 +50,36 @@ public class _5b_Conditional_Workflow_Example_Async {
                 .outputKey("sentEmailId")
                 .build();
 
-        // 2. Build async conditional workflow
+        // 2. 构建异步条件工作流
         UntypedAgent candidateResponder = AgenticServices
                 .conditionalBuilder()
                 .subAgents(scope -> {
                     CvReview hrReview = (CvReview) scope.readState("cvReview");
-                    return hrReview.score >= 0.8; // if HR passes, send to manager for review
+                    return hrReview.score >= 0.8; // 如果HR通过，发送给经理审查
                 }, managerCvReviewer)
                 .subAgents(scope -> {
                     CvReview hrReview = (CvReview) scope.readState("cvReview");
-                    return hrReview.score < 0.8; // if HR does not pass, send rejection email
+                    return hrReview.score < 0.8; // 如果HR未通过，发送拒绝邮件
                 }, emailAssistant)
                 .subAgents(scope -> {
                     CvReview hrReview = (CvReview) scope.readState("cvReview");
                     return hrReview.feedback.toLowerCase().contains("missing information:");
-                }, infoRequester) // if needed, request more info from candidate
+                }, infoRequester) // 如果需要，向候选人请求更多信息
                 .output(agenticScope ->
                         (agenticScope.readState("managerReview", new CvReview(0, "no manager review needed"))).toString() +
                                 "\n" + agenticScope.readState("sentEmailId", 0)
-                ) // final output is the manager review (if any)
+                ) // 最终输出是经理审查（如果有）
                 .build();
 
-        // 3. Input arguments
+        // 3. 输入参数
         String candidateCv = StringLoader.loadFromResource("/documents/tailored_cv.txt");
         String candidateContact = StringLoader.loadFromResource("/documents/candidate_contact.txt");
         String jobDescription = StringLoader.loadFromResource("/documents/job_description_backend.txt");
         CvReview hrReview = new CvReview(
                 0.85,
                 """
-                        Solid candidate, salary expectations in scope and able to start within desired timeframe.
-                        Missing information: details about work authorization status in Belgium.
+                        优秀的候选人，薪资期望在范围内，能在期望的时间框架内入职。
+                        缺少信息：比利时工作授权状态的详细信息。
                         """
         );
 
@@ -91,9 +91,9 @@ public class _5b_Conditional_Workflow_Example_Async {
         );
 
 
-        // 4. Run the conditional async workflow
+        // 4. 运行异步条件工作流
         candidateResponder.invoke(arguments);
 
-        System.out.println("=== Finished execution of async conditional workflow ===");
+        System.out.println("=== 异步条件工作流执行完成 ===");
     }
 }

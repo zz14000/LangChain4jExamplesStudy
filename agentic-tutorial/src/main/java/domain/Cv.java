@@ -3,13 +3,13 @@ package domain;
 import dev.langchain4j.model.output.structured.Description;
 
 public class Cv {
-    @Description("skills of the cadidate, comma-concatenated")
+    @Description("候选人的技能，逗号分隔")
     private String skills;
 
-    @Description("professional experience of the candidate")
+    @Description("候选人的职业经历")
     private String professionalExperience;
 
-    @Description("studies of the candidate")
+    @Description("候选人的教育背景")
     private String studies;
 
     @Override

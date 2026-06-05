@@ -5,6 +5,6 @@ import dev.langchain4j.service.V;
 
 
 public interface CandidateWorkflow {
-    @Agent("Based on life story and job description, generates master CV, tailors it to job description with feedback loop until passing score")
+    @Agent("根据人生故事和职位描述，生成主简历，通过反馈循环定制简历直到评分通过")
     String processCandidate(@V("lifeStory") String userInfo, @V("jobDescription") String jobDescription);
 }

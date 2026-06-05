@@ -8,21 +8,21 @@ import dev.langchain4j.service.V;
 
 public interface MeetingProposer {
     
-    @Agent("Proposes a meeting time")
+    @Agent("提议会议时间")
     @SystemMessage("""
-        You assist CompanyA in trying to schedule a new meeting on topic {{meetingTopic}}.
-        Reserve 3 hours for the meeting.
+        你协助CompanyA尝试安排关于{{meetingTopic}}主题的新会议。
+        预留3小时用于会议。
         
-        You propose the candidate a meeting slot in a single phrase, like:
-        "Would you be available next Monday at 10am?"
-        Also answer user questions if there are any.
+        你用一句话向候选人提议一个会议时间段，例如：
+        "下周一下午10点您方便吗？"
+        如果用户有问题，也请回答。
         
-        Your team has following meeting availability: next week Mon, Tue or Thu at 9am,
-        or the week after that, Tue, Wed or Fri at 2pm.
-        Today is {{current_date}}..
+        你的团队有以下会议可用时间：下周周一、周二或周四上午9点，
+        或再下一周，周二、周三或周五下午2点。
+        今天是{{current_date}}。
         """)
     @UserMessage("""
-        Previous candidate answer was: {{candidateAnswer}}
+        候选人之前的回答是：{{candidateAnswer}}
         """)
     String propose(@MemoryId String memoryId, @V("meetingTopic") String meetingTopic, @V("candidateAnswer") String candidateAnswer);
 }

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Advanced Supervisor Example with explicit AgenticScope to inspect evolving context
+ * 高级监督者示例，使用显式 AgenticScope 检查不断演变的上下文
  */
 public class _7b_Supervisor_Orchestration_Advanced {
 
@@ -31,17 +31,17 @@ public class _7b_Supervisor_Orchestration_Advanced {
     private static final ChatModel CHAT_MODEL = ChatModelProvider.createChatModel();
 
     /**
-     * In this example we build a similar supervisor as in _7a_Supervisor_Orchestration,
-     * but we explore a number of extra features of the Supervisor:
-     * - typed supervisor,
-     * - context engineering,
-     * - output strategies,
-     * - call chain observation,
-     * - context evolution inspection
+     * 在本示例中，我们构建了与 _7a_Supervisor_Orchestration 类似的监督者，
+     * 但我们探索了监督者的许多额外功能：
+     * - 类型化监督者，
+     * - 上下文工程，
+     * - 输出策略，
+     * - 调用链观察，
+     * - 上下文演变检查
      */
     public static void main(String[] args) throws IOException {
 
-        // 1. Define subagents
+        // 1. 定义子智能体
         HrCvReviewer hrReviewer = AgenticServices.agentBuilder(HrCvReviewer.class)
                 .chatModel(CHAT_MODEL)
                 .build();
@@ -62,45 +62,45 @@ public class _7b_Supervisor_Orchestration_Advanced {
                 .outputKey("response")
                 .build();
 
-        // 2. Build supervisor
+        // 2. 构建监督者
 
         HiringSupervisor hiringSupervisor = AgenticServices
                 .supervisorBuilder(HiringSupervisor.class)
                 .chatModel(CHAT_MODEL)
                 .subAgents(hrReviewer, managerReviewer, teamReviewer, interviewOrganizer, emailAssistant)
                 .contextGenerationStrategy(SupervisorContextStrategy.CHAT_MEMORY_AND_SUMMARIZATION)
-                // depending on what your supervisor needs to know about what the sub-agents have been doing,
-                // you can choose contextGenerationStrategy CHAT_MEMORY, SUMMARIZATION, or CHAT_MEMORY_AND_SUMMARIZATION
-                .responseStrategy(SupervisorResponseStrategy.SCORED) // this strategy uses a scorer model to decide weather the LAST response or the SUMMARY solves the user request best
-                // an output function here would override the response strategy
-                .supervisorContext("Policy: Always check HR first, escalate if needed, reject low-fit.")
+                // 根据你的监督者需要了解子智能体做了什么，
+                // 你可以选择 contextGenerationStrategy：CHAT_MEMORY、SUMMARIZATION 或 CHAT_MEMORY_AND_SUMMARIZATION
+                .responseStrategy(SupervisorResponseStrategy.SCORED) // 此策略使用评分模型来决定最后一次响应还是摘要最能解决用户请求
+                // 此处的输出函数将覆盖响应策略
+                .supervisorContext("策略：始终先检查HR，必要时升级，拒绝低匹配度的候选人。")
                 .build();
 
-        // 3. Load input data
+        // 3. 加载输入数据
         String jobDescription = StringLoader.loadFromResource("/documents/job_description_backend.txt");
         String candidateCv = StringLoader.loadFromResource("/documents/tailored_cv.txt");
         String candidateContact = StringLoader.loadFromResource("/documents/candidate_contact.txt");
         String hrRequirements = StringLoader.loadFromResource("/documents/hr_requirements.txt");
         String phoneInterviewNotes = StringLoader.loadFromResource("/documents/phone_interview_notes.txt");
 
-        String request = "Evaluate this candidate and either schedule an interview or send a rejection email.\n"
-                + "Candidate CV:\n" + candidateCv + "\n"
-                + "Candidate Contacts:\n" + candidateContact + "\n"
-                + "Job Description:\n" + jobDescription + "\n"
-                + "HR Requirements:\n" + hrRequirements + "\n"
-                + "Phone Interview Notes:\n" + phoneInterviewNotes;
+        String request = "评估这位候选人，然后安排面试或发送拒绝邮件。\n"
+                + "候选人简历：\n" + candidateCv + "\n"
+                + "候选人联系方式：\n" + candidateContact + "\n"
+                + "职位描述：\n" + jobDescription + "\n"
+                + "HR要求：\n" + hrRequirements + "\n"
+                + "电话面试记录：\n" + phoneInterviewNotes;
 
-        // 4. Invoke supervisor
+        // 4. 调用监督者
         long start = System.nanoTime();
-        ResultWithAgenticScope<String> decision = hiringSupervisor.invoke(request, "Manager technical review is most important.");
+        ResultWithAgenticScope<String> decision = hiringSupervisor.invoke(request, "经理技术审查最重要。");
         long end = System.nanoTime();
 
-        System.out.println("=== Hiring Supervisor finished in " + ((end - start) / 1_000_000_000.0) + "s ===");
+        System.out.println("=== 招聘监督者完成，耗时 " + ((end - start) / 1_000_000_000.0) + "秒 ===");
         System.out.println(decision.result());
 
-        // Print collected contexts
-        System.out.println("\n=== Context as Conversation ===");
-        System.out.println(decision.agenticScope().contextAsConversation()); // will work in next release
+        // 打印收集的上下文
+        System.out.println("\n=== 上下文对话 ===");
+        System.out.println(decision.agenticScope().contextAsConversation()); // 将在下一版本中生效
 
     }
 }

@@ -6,13 +6,13 @@ import dev.langchain4j.service.V;
 
 public interface CvGenerator {
     @UserMessage("""
-            Here is information on my life and professional trajectory
-            that you should turn into a clean and complete CV.
-            Do not invent facts and do not leave out skills or experiences.
-            This CV will later be cleaned up, for now, make sure it is complete.
-            Return only the CV, no other text.
-            My life story: {{lifeStory}}
+            以下是我的生活和职业轨迹信息，
+            请将其整理为一份简洁完整的简历。
+            不要编造事实，也不要遗漏技能或经历。
+            这份简历稍后还会被进一步润色，现在请确保内容完整。
+            只返回简历内容，不要返回其他文字。
+            我的人生故事：{{lifeStory}}
             """)
-    @Agent("Generates a clean CV based on user-provided information")
+    @Agent("根据用户提供的信息生成一份简洁的简历")
     String generateCv(@V("lifeStory") String userInfo);
 }

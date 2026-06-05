@@ -14,18 +14,18 @@ public class OrganizingTools {
         return new Date();
     }
 
-    @Tool("finds the email addresses and names of people that need to be present at the onsite interview for a given job description ID")
-    public List<String> getInvolvedEmployeesForInterview(@P("job description ID") String jobDescriptionId){
-        // dummy implementation for demo
+    @Tool("查找需要参加给定职位描述ID的现场面试的员工的邮箱地址和姓名")
+    public List<String> getInvolvedEmployeesForInterview(@P("职位描述ID") String jobDescriptionId){
+        // 演示用的模拟实现
         return new ArrayList<>(List.of(
                 "Anna Bolena: hiring.manager@company.com",
                 "Chris Durue: near.colleague@company.com",
                 "Esther Finnigan: vp@company.com"));
     }
 
-    @Tool("creates agenda entries for employees based on email address")
-    public void createCalendarEntry(@P("list of employee email addresses") List<String> emailAddress, @P("meeting topic") String topic, @P("start date and time in format yyyy-mm-dd hh:mm") String start, @P("end date and time in format yyyy-mm-dd hh:mm") String end){
-        // dummy implementation for demo
+    @Tool("根据邮箱地址为员工创建日程条目")
+    public void createCalendarEntry(@P("员工邮箱地址列表") List<String> emailAddress, @P("会议主题") String topic, @P("开始日期和时间，格式 yyyy-mm-dd hh:mm") String start, @P("结束日期和时间，格式 yyyy-mm-dd hh:mm") String end){
+        // 演示用的模拟实现
         System.out.println("*** CALENDAR ENTRY CREATED ***");
         System.out.println("Topic: " + topic);
         System.out.println("Start: " + start);
@@ -33,19 +33,19 @@ public class OrganizingTools {
     }
 
     @Tool
-    public int sendEmail(@P("list of recipient email addresses") List<String> to, @P("list of CC email addresses") List<String> cc, @P("emailsubject") String subject, @P("body") String body){
-        // dummy implementation for demo
+    public int sendEmail(@P("收件人邮箱地址列表") List<String> to, @P("抄送邮箱地址列表") List<String> cc, @P("邮件主题") String subject, @P("正文") String body){
+        // 演示用的模拟实现
         System.out.println("*** EMAIL SENT ***");
         System.out.println("To: " + to);
         System.out.println("Cc: " + cc);
         System.out.println("Subject: " + subject);
         System.out.println("Body: " + body);
-        return 1234; // dummy email ID
+        return 1234; // 模拟邮件ID
     }
 
     @Tool
-    public void updateApplicationStatus(@P("job description ID") String jobDescriptionId, @P("candidate (first name, last name)") String candidateName, @P("new application status") String newStatus){
-        // dummy implementation for demo
+    public void updateApplicationStatus(@P("职位描述ID") String jobDescriptionId, @P("候选人（名，姓）") String candidateName, @P("新的申请状态") String newStatus){
+        // 演示用的模拟实现
         System.out.println("*** APPLICATION STATUS UPDATED ***");
         System.out.println("Job Descirption ID: " + jobDescriptionId);
         System.out.println("Candidate Name: " + candidateName);

@@ -33,6 +33,14 @@ public class ChatModelProvider {
                     .logRequests(enableLogging)
                     .logResponses(enableLogging)
                     .build();
+        } else if ("DEEPSEEK".equalsIgnoreCase(provider)) {
+            return OpenAiChatModel.builder()
+                    .baseUrl("https://api.deepseek.com/v1")
+                    .apiKey(System.getenv("OPENAI_API_KEY"))
+                    .modelName("deepseek-chat")
+                    .logRequests(enableLogging)
+                    .logResponses(enableLogging)
+                    .build();
         } else {
             return OpenAiChatModel.builder()
                     .apiKey(System.getenv("OPENAI_API_KEY"))

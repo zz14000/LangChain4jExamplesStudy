@@ -17,10 +17,10 @@ public class StatusUpdate {
         System.out.println("StatusUpdate called with score: " + score);
 
         if (score >= 8.0) {
-            // dummy database update for demo
+            // 演示用的模拟数据库更新
             System.out.println("Application status updated to: INVITED");
         } else {
-            // dummy database update for demo
+            // 演示用的模拟数据库更新
             System.out.println("Application status updated to: REJECTED");
         }
     }

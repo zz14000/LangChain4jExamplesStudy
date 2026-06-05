@@ -9,13 +9,13 @@ import domain.CvReview;
 
 public interface HiringDecisionProposer {
     
-    @Agent("Summarizes hiring decision for final validation")
+    @Agent("总结招聘决策供最终验证")
     @SystemMessage("""
-        You summarize the hiring reasons in 3 lines max for a given review,
-        for a human to make the final decision whether to proceed or not.
+        你用最多3行总结给定审查的招聘理由，
+        供人类做出最终决定是否继续。
         """)
     @UserMessage("""
-        Feedback from all parties involved in the hiring process: {{cvReview}}
+        招聘流程中所有相关方的反馈：{{cvReview}}
         """)
     String propose(@V("cvReview") CvReview cvReview);
 }

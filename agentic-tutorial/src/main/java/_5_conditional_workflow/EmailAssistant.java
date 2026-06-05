@@ -7,16 +7,16 @@ import dev.langchain4j.service.V;
 
 public interface EmailAssistant {
 
-    @Agent("Sends rejection emails to candidates that didn't pass, returns the sent email ID or 0 if no email could be sent")
+    @Agent("向未通过的候选人发送拒绝邮件，返回已发送的邮件ID，如果无法发送则返回0")
     @SystemMessage("""
-            You send a kind email to application candidates that did not pass the first review round.
-            You also update the application status to 'rejected'.
-            You return the sent email ID.
+            你向未通过初审的申请候选人发送一封友好的邮件。
+            你还将申请状态更新为'已拒绝'。
+            你返回已发送的邮件ID。
             """)
     @UserMessage("""
-            Rejected candidate: {{candidateContact}}
+            被拒绝的候选人：{{candidateContact}}
             
-            For job: {{jobDescription}}
+            应聘职位：{{jobDescription}}
             """)
     int send(@V("candidateContact") String candidateContact, @V("jobDescription") String jobDescription);
 }

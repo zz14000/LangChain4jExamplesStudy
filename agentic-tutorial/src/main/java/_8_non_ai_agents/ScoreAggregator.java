@@ -5,13 +5,13 @@ import dev.langchain4j.service.V;
 import domain.CvReview;
 
 /**
- * Non-AI agent that aggregates multiple CV reviews into a combined review.
- * This demonstrates how plain Java operators can be used as first-class agents
- * in agentic workflows, making them interchangeable with AI-powered agents.
+ * 非 AI 智能体，将多个简历审查聚合为综合审查。
+ * 这演示了如何将普通 Java 操作符作为一等智能体
+ * 在智能体工作流中使用，使其可与 AI 驱动的智能体互换。
  */
 public class ScoreAggregator {
 
-    @Agent(description = "Aggregates HR/Manager/Team reviews into a combined review", outputKey = "combinedCvReview")
+    @Agent(description = "将HR/经理/团队的审查聚合为综合审查", outputKey = "combinedCvReview")
     public CvReview aggregate(@V("hrReview") CvReview hr,
                              @V("managerReview") CvReview mgr,
                              @V("teamMemberReview") CvReview team) {

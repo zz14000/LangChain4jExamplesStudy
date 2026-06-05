@@ -8,6 +8,6 @@ import dev.langchain4j.service.V;
 import java.util.List;
 
 public interface HiringSupervisor {
-    @Agent("Top-level hiring supervisor orchestrating candidate evaluation and decision-making")
+    @Agent("顶级招聘监督者，编排候选人评估和决策流程")
     ResultWithAgenticScope<String> invoke(@V("request") String request, @V("supervisorContext") String supervisorContext);
 }

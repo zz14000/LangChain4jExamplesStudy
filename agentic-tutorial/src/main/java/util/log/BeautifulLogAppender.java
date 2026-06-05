@@ -15,7 +15,7 @@ public class BeautifulLogAppender extends AppenderBase<ILoggingEvent> {
         String message = event.getFormattedMessage();
         String loggerName = event.getLoggerName();
         
-        // Process HTTP client logs
+        // 处理HTTP客户端日志
         if (loggerName.contains("LoggingHttpClient")) {
             if (message.contains("HTTP request:")) {
                 LogParser.parseHttpRequest(message);
@@ -25,7 +25,7 @@ public class BeautifulLogAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
         
-        // Skip known noisy loggers completely
+        // 完全跳过已知的嘈杂日志器
         if (loggerName.contains("okhttp3") ||
             loggerName.contains("com.fasterxml.jackson") ||
             loggerName.contains("ai.djl") ||
@@ -56,7 +56,7 @@ public class BeautifulLogAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
         
-        // For all other logs, show with prefix for debugging
+        // 对于所有其他日志，带前缀显示以便调试
         System.out.println("UNFILTERED LOG: [" + event.getLevel() + "] [" + loggerName + "] " + message);
     }
 }

@@ -17,57 +17,57 @@ import java.util.Map;
 public class _2b_Sequential_Agent_Example_Typed {
 
     static {
-        CustomLogging.setLevel(LogLevels.PRETTY, 150);  // control how much you see from the model calls
+        CustomLogging.setLevel(LogLevels.PRETTY, 150);  // 控制模型调用的日志输出量
     }
 
     /**
-     * We'll implement the same sequential workflow as in 2a, but this time we'll
-     * - use a typed interface for the composed agent (SequenceCvGenerator)
-     * - which will allow us to use its method with arguments instead of .invoke(argsMap)
-     * - collect the output in a custom way
-     * - retrieve and inspect the AgenticScope after invocation, for debugging or testing purposes
+     * 我们将实现与 2a 相同的顺序工作流，但这次我们将
+     * - 为组合智能体使用类型化接口（SequenceCvGenerator）
+     * - 这将允许我们使用带参数的方法，而不是 .invoke(argsMap)
+     * - 以自定义方式收集输出
+     * - 在调用后检索和检查 AgenticScope，用于调试或测试目的
      */
 
-    // 1. Define the model that will power the agents
+    // 1. 定义驱动智能体的模型
     private static final ChatModel CHAT_MODEL = ChatModelProvider.createChatModel();
 
     public static void main(String[] args) throws IOException {
 
-        // 2. Define the sequential agent interface in this package:
+        // 2. 在本包中定义顺序智能体接口：
         //      - SequenceCvGenerator.java
-        // with method signature:
+        // 方法签名为：
         // ResultWithAgenticScope<Map<String, String>> generateTailoredCv(@V("lifeStory") String lifeStory, @V("instructions") String instructions);
 
-        // 3. Create both sub-agents using AgenticServices like before
+        // 3. 像之前一样使用 AgenticServices 创建两个子智能体
         CvGenerator cvGenerator = AgenticServices
                 .agentBuilder(CvGenerator.class)
                 .chatModel(CHAT_MODEL)
-                .outputKey("masterCv") // if you want to pass this variable from agent 1 to agent 2,
-                // then make sure the output key here matches the input variable name
-                // specified in the second agent interface agent_interfaces/CvTailor.java
+                .outputKey("masterCv") // 如果你想将此变量从智能体1传递到智能体2，
+                // 请确保此处的输出键名与第二个智能体接口 agent_interfaces/CvTailor.java 中
+                // 指定的输入变量名匹配
                 .build();
         CvTailor cvTailor = AgenticServices
                 .agentBuilder(CvTailor.class)
-                .chatModel(CHAT_MODEL) // note that it is also possible to use a different model for a different agent
-                .outputKey("tailoredCv") // we need to define the key of the output object
-                // if we would put "masterCv" here, the original master CV would be overwritten
-                // by the second agent. In this case we don't want this, but it's a useful feature.
+                .chatModel(CHAT_MODEL) // 注意，也可以为不同的智能体使用不同的模型
+                .outputKey("tailoredCv") // 我们需要定义输出对象的键名
+                // 如果在这里填 "masterCv"，原始主简历将被第二个智能体覆盖。
+                // 在这种情况下我们不希望如此，但这是一个有用的功能。
                 .build();
 
 
-        // 4. Load the arguments from text files in resources/documents/
-        // (no need to put them in a Map this time)
+        // 4. 从 resources/documents/ 中的文本文件加载参数
+        // （这次不需要放入 Map 中）
         // - user_life_story.txt
         // - job_description_backend.txt
         String lifeStory = StringLoader.loadFromResource("/documents/user_life_story.txt");
-        String instructions = "Adapt the CV to the job description below." + StringLoader.loadFromResource("/documents/job_description_backend.txt");
+        String instructions = "根据以下职位描述调整简历。" + StringLoader.loadFromResource("/documents/job_description_backend.txt");
 
-        // 5. Build the typed sequence with custom output handling
+        // 5. 构建带自定义输出处理的类型化顺序工作流
         SequenceCvGenerator sequenceCvGenerator = AgenticServices
-                .sequenceBuilder(SequenceCvGenerator.class) // here we specify the typed interface
+                .sequenceBuilder(SequenceCvGenerator.class) // 在此指定类型化接口
                 .subAgents(cvGenerator, cvTailor)
                 .outputKey("bothCvsAndLifeStory")
-                .output(agenticScope -> { // any method is possible, but we collect some internal variables.
+                .output(agenticScope -> { // 可以使用任何方法，但我们收集了一些内部变量。
                     Map<String, String> bothCvsAndLifeStory = Map.of(
                             "lifeStory", agenticScope.readState("lifeStory", ""),
                             "masterCv", agenticScope.readState("masterCv", ""),
@@ -77,10 +77,10 @@ public class _2b_Sequential_Agent_Example_Typed {
                     })
                 .build();
 
-        // 6. Call the typed composed agent
+        // 6. 调用类型化组合智能体
         ResultWithAgenticScope<Map<String,String>> bothCvsAndScope = sequenceCvGenerator.generateTailoredCv(lifeStory, instructions);
 
-        // 7. Extract result and agenticScope
+        // 7. 提取结果和 agenticScope
         AgenticScope agenticScope = bothCvsAndScope.agenticScope();
         Map<String,String> bothCvsAndLifeStory = bothCvsAndScope.result();
 
@@ -94,22 +94,22 @@ public class _2b_Sequential_Agent_Example_Typed {
         String tailoredCv = bothCvsAndLifeStory.get("tailoredCv");
         System.out.println(tailoredCv.length() > 100 ? tailoredCv.substring(0, 100) + " [truncated...]" : tailoredCv);
 
-        // Both untyped and typed agents give the same tailoredCv result
-        // (any differences are due to the non-deterministic nature of LLMs),
-        // but the typed agent is more elegant to use and safer because of compile-time type checking
+        // 无类型和类型化智能体会产生相同的 tailoredCv 结果
+        // （任何差异都是由于 LLM 的非确定性造成的），
+        // 但类型化智能体使用更优雅，并且由于编译时类型检查更安全
 
         System.out.println("=== AGENTIC SCOPE ===");
         System.out.println(AgenticScopePrinter.printPretty(agenticScope, 100));
-        // this will return this object (filled out):
+        // 这将返回此对象（已填充）：
         // AgenticScope {
         //     memoryId = "e705028d-e90e-47df-9709-95953e84878c",
         //             state = {
-        //                     bothCvsAndLifeStory = { // output
+        //                     bothCvsAndLifeStory = { // 输出
         //                             masterCv = "...",
         //                            lifeStory = "...",
         //                            tailoredCv = "..."
         //                     },
-        //                     instructions = "...", // inputs and intermediary variables
+        //                     instructions = "...", // 输入和中间变量
         //                     tailoredCv = "...",
         //                     masterCv = "...",
         //                     lifeStory = "..."

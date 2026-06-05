@@ -59,26 +59,31 @@ public class _09_ServiceWithPersistentMemoryForEachUserExample {
     // You can create your own implementation of ChatMemoryStore and store chat memory whenever you'd like
     static class PersistentChatMemoryStore implements ChatMemoryStore {
 
+        //- 使用 MapDB 创建一个文件数据库（ multi-user-chat-memory.db ）
+        //- 启用事务支持（ transactionEnable() ），确保数据一致性
+        //MapDB是内嵌数据库，不需要单独安装数据库服务器，只需要在Java应用中引入MapDB依赖即可，以文件形式存储数据
         private final DB db = DBMaker.fileDB("multi-user-chat-memory.db").transactionEnable().make();
+        //创建一个哈希映射（ messages ），用于存储每个用户的聊天记录
+        //"messages" 是集合名 ，类似数据库表名，一个文件数据库里可以有多个集合，所以在创建时需要指定集合名，这里使用 INTEGER, STRING 分别表示键和值的类型
         private final Map<Integer, String> map = db.hashMap("messages", INTEGER, STRING).createOrOpen();
 
         @Override
         public List<ChatMessage> getMessages(Object memoryId) {
-            String json = map.get((int) memoryId);
-            return messagesFromJson(json);
+            String json = map.get((int) memoryId);//根据 memoryId 从数据库中获取对应的 JSON 字符串
+            return messagesFromJson(json);//将 JSON 字符串转换为 ChatMessage 列表
         }
 
         @Override
         public void updateMessages(Object memoryId, List<ChatMessage> messages) {
             String json = messagesToJson(messages);
             map.put((int) memoryId, json);
-            db.commit();
+            db.commit();    //开启了事务支持，所以这里需要提交事务，确保数据一致性
         }
 
         @Override
         public void deleteMessages(Object memoryId) {
             map.remove((int) memoryId);
-            db.commit();
+            db.commit();    //开启了事务支持，所以这里需要提交事务，确保数据一致性
         }
     }
 }

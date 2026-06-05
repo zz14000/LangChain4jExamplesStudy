@@ -26,10 +26,15 @@ public class _08_AIServiceExamples {
             .timeout(ofSeconds(60))
             .build();
 
-    ////////////////// SIMPLE EXAMPLE //////////////////////
-
+    ////////////////// 简单示例 //////////////////////
+    //工作流程：用户调用 → assistant.chat() → AiServices 代理 → 调用 AI 模型 → 返回结果
     static class Simple_AI_Service_Example {
 
+        /**
+         * - 定义一个简单的接口 Assistant
+         * - 只有一个方法 chat(String message) ，接收用户消息，返回 AI 的回复
+         * - 关键点 ：你不需要实现这个接口，LangChain4j 会动态创建实现
+         */
         interface Assistant {
 
             String chat(String message);
@@ -37,18 +42,27 @@ public class _08_AIServiceExamples {
 
         public static void main(String[] args) {
 
+            /**
+             * - AiServices.create() 是核心方法
+             * - 它接收接口类型和聊天模型（这里是 DeepSeek）
+             * - 返回一个动态代理实现，会自动调用 AI 模型
+             */
             Assistant assistant = AiServices.create(Assistant.class, model);
 
-            String userMessage = "翻译'Plus-Values des cessions de valeurs mobilières, de droits sociaux et gains assimilés'";
-
+            //String userMessage = "翻译'Plus-Values des cessions de valeurs mobilières, de droits sociaux et gains assimilés'";
+            String userMessage ="今天南京天气咋用";
+            /**
+             * - 调用 chat() 方法就像调用普通 Java 方法一样
+            - AI 会自动处理翻译任务并返回结果
+             */
             String answer = assistant.chat(userMessage);
 
             System.out.println(answer);
         }
     }
 
-    ////////////////// WITH MESSAGE AND VARIABLES //////////////////////
-
+    ////////////////// 带消息和变量 //////////////////////
+    //加上了系统提示词的简单AiService
     static class AI_Service_with_System_Message_Example {
 
         interface Chef {
@@ -99,7 +113,7 @@ public class _08_AIServiceExamples {
         }
     }
 
-    //////////////////// EXTRACTING DIFFERENT DATA TYPES ////////////////////
+    //////////////////// 提取不同类型数据 ////////////////////
 
     static class Sentiment_Extracting_AI_Service_Example {
 
@@ -277,13 +291,14 @@ public class _08_AIServiceExamples {
 
             ChatModel model = OpenAiChatModel.builder()
                     .apiKey(ApiKeys.OPENAI_API_KEY)
-                    .modelName(GPT_4_O_MINI)
+                    .baseUrl("https://api.deepseek.com")
+                    .modelName("deepseek-v4-flash")
                     // 当使用支持"json mode"功能的大语言模型提取 POJO 时
                     // （如 OpenAI、Azure OpenAI、Vertex AI Gemini、Ollama 等），
                     // 建议启用该功能（json mode）以获得更可靠的结果。
                     // 使用此功能时，LLM 将被强制输出有效的 JSON。
-                    .responseFormat("json_schema")
-                    .strictJsonSchema(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-json-mode
+//                    .responseFormat("json_schema")
+//                    .strictJsonSchema(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-json-mode
                     .timeout(ofSeconds(60))
                     .build();
 
@@ -298,7 +313,7 @@ public class _08_AIServiceExamples {
         }
     }
 
-    ////////////////////// DESCRIPTIONS ////////////////////////
+    ////////////////////// 描述 ////////////////////////
 
     static class POJO_With_Descriptions_Extracting_AI_Service_Example {
 
@@ -344,13 +359,14 @@ public class _08_AIServiceExamples {
 
             ChatModel model = OpenAiChatModel.builder()
                     .apiKey(ApiKeys.OPENAI_API_KEY)
-                    .modelName(GPT_4_O_MINI)
+                    .baseUrl("https://api.deepseek.com")
+                    .modelName("deepseek-v4-flash")
                     // 当使用支持"json mode"功能的大语言模型提取 POJO 时
                     //（如 OpenAI、Azure OpenAI、Vertex AI Gemini、Ollama 等），
                     // 建议启用该功能（json mode）以获得更可靠的结果。
                     // 使用此功能时，LLM 将被强制输出有效的 JSON。
-                    .responseFormat("json_schema")
-                    .strictJsonSchema(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-json-mode
+//                    .responseFormat("json_schema")
+//                    .strictJsonSchema(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-json-mode
                     .timeout(ofSeconds(60))
                     .build();
 
@@ -358,7 +374,9 @@ public class _08_AIServiceExamples {
 
             Recipe recipe = chef.createRecipeFrom("黄瓜", "番茄", "菲达奶酪", "洋葱", "橄榄", "柠檬");
 
+            System.out.println("====开始打印====");
             System.out.println(recipe);
+            System.out.println("====结束打印====");
             // Recipe {
             // title = "Greek Salad",
             // description = "A refreshing mix of veggies and feta cheese in a zesty
@@ -377,13 +395,15 @@ public class _08_AIServiceExamples {
             prompt.ingredients = asList("cucumber", "tomato", "feta", "onion", "olives", "potatoes");
 
             Recipe anotherRecipe = chef.createRecipe(prompt);
+            System.out.println("===+开始打印====");
             System.out.println(anotherRecipe);
+            System.out.println("===+结束打印====");
             // Recipe ...
         }
     }
 
 
-    ////////////////////////// WITH MEMORY /////////////////////////
+    ////////////////////////// 带记忆功能 /////////////////////////
 
     static class ServiceWithMemoryExample {
 

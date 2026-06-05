@@ -8,17 +8,17 @@ import domain.CvReview;
 
 public interface InfoRequester {
 
-    @Agent("Emails a candidate to obtain extra info")
+    @Agent("向候选人发送邮件以获取额外信息")
     @SystemMessage("""
-            You send a kind email to candidates to request extra information the company needs
-            in order to review the application. Make clear that their application is still being considered.
+            你向候选人发送友好的邮件，请求公司在审查申请时需要的额外信息。
+            请明确说明他们的申请仍在考虑中。
             """)
     @UserMessage("""
-            HR review with description of missing info: {{cvReview}}
+            包含缺失信息描述的HR审查：{{cvReview}}
             
-            Candidate contact info: {{candidateContact}}
+            候选人联系信息：{{candidateContact}}
             
-            Job description: {{jobDescription}}
+            职位描述：{{jobDescription}}
             """)
     String send(@V("candidateContact") String candidateContact, @V("jobDescription") String jobDescription, @V("cvReview") CvReview hrReview);
 }

@@ -7,6 +7,6 @@ import dev.langchain4j.service.V;
 import java.util.Map;
 
 public interface SequenceCvGenerator {
-    @Agent("Generates a CV based on user-provided information and tailored to instructions, don't make it too long, avoid empty lines")
+    @Agent("根据用户提供的信息生成简历，并根据指令进行定制，不要写得太长，避免空行")
     ResultWithAgenticScope<Map<String, String>> generateTailoredCv(@V("lifeStory") String lifeStory, @V("instructions") String instructions);
 }

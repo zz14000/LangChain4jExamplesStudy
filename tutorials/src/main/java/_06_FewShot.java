@@ -12,6 +12,14 @@ import java.util.concurrent.CompletableFuture;
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 import static java.time.Duration.ofSeconds;
 
+/**
+ * 通过提供示例，AI 会模仿示例中的格式和语气：
+ *
+ * - 先判断情感倾向（正面/负面）
+ * - 执行相应操作（转发/创建工单）
+ * - 用专业、礼貌的语气回复
+ * 这是一种 无需训练 的提示工程技术，让模型快速学会特定任务的处理方式。
+ */
 public class _06_FewShot {
 
     public static void main(String[] args) {
@@ -25,33 +33,33 @@ public class _06_FewShot {
 
         List<ChatMessage> fewShotHistory = new ArrayList<>();
 
-        // Adding positive feedback example to history
+        // 添加正面反馈示例到历史记录
         fewShotHistory.add(UserMessage.from(
-                "I love the new update! The interface is very user-friendly and the new features are amazing!"));
+                "我喜欢这个新更新！界面非常友好，新功能也很棒！"));
         fewShotHistory.add(AiMessage.from(
-                "Action: forward input to positive feedback storage\nReply: Thank you very much for this great feedback! We have transmitted your message to our product development team who will surely be very happy to hear this. We hope you continue enjoying using our product."));
+                "操作：将输入转发到正面反馈存储\n回复：非常感谢您的反馈！我们已将您的消息传达给我们的产品开发团队，他们一定会很高兴听到这个消息。希望您继续享受使用我们的产品。"));
 
-        // Adding negative feedback example to history
+        // 添加负面反馈示例到历史记录
         fewShotHistory.add(UserMessage
-                .from("I am facing frequent crashes after the new update on my Android device."));
+                .from("新更新后我的安卓设备频繁崩溃。"));
         fewShotHistory.add(AiMessage.from(
-                "Action: open new ticket - crash after update Android\nReply: We are so sorry to hear about the issues you are facing. We have reported the problem to our development team and will make sure this issue is addressed as fast as possible. We will send you an email when the fix is done, and we are always at your service for any further assistance you may need."));
+                "操作：创建新工单 - 更新后安卓崩溃\n回复：非常抱歉听到您遇到的问题。我们已将此问题报告给我们的开发团队，并将尽快解决。修复完成后我们会发送电子邮件给您，如有任何进一步帮助，我们随时为您服务。"));
 
-        // Adding another positive feedback example to history
+        // 添加另一个正面反馈示例到历史记录
         fewShotHistory.add(UserMessage
-                .from("Your app has made my daily tasks so much easier! Kudos to the team!"));
+                .from("您的应用让我的日常任务变得如此简单！向团队致敬！"));
         fewShotHistory.add(AiMessage.from(
-                "Action: forward input to positive feedback storage\nReply: Thank you so much for your kind words! We are thrilled to hear that our app is making your daily tasks easier. Your feedback has been shared with our team. We hope you continue to enjoy using our app!"));
+                "操作：将输入转发到正面反馈存储\n回复：非常感谢您的赞誉！我们很高兴听到我们的应用让您的日常任务变得更轻松。您的反馈已与我们团队分享。希望您继续享受使用我们的应用！"));
 
-        // Adding another negative feedback example to history
+        // 添加另一个负面反馈示例到历史记录
         fewShotHistory.add(UserMessage
-                .from("The new feature is not working as expected. It’s causing data loss."));
+                .from("新功能没有按预期工作，导致数据丢失。"));
         fewShotHistory.add(AiMessage.from(
-                "Action: open new ticket - data loss by new feature\nReply:We apologize for the inconvenience caused. Your feedback is crucial to us, and we have reported this issue to our technical team. They are working on it on priority. We will keep you updated on the progress and notify you once the issue is resolved. Thank you for your patience and support."));
+                "操作：创建新工单 - 新功能导致数据丢失\n回复：我们对造成的不便表示歉意。您的反馈对我们至关重要，我们已将此问题报告给技术团队。他们正在优先处理。我们将随时向您通报进展，并在问题解决后通知您。感谢您的耐心和支持。"));
 
-        // Adding real user's message
+        // 添加真实用户的消息
         UserMessage customerComplaint = UserMessage
-                .from("How can your app be so slow? Please do something about it!");
+                .from("你的应用怎么能这么慢？请做点什么！");
         fewShotHistory.add(customerComplaint);
 
         System.out.println("[User]: " + customerComplaint.singleText());
@@ -61,34 +69,19 @@ public class _06_FewShot {
 
         model.chat(fewShotHistory, new StreamingChatResponseHandler() {
 
-            /**
-             * - 触发时机 ：每次接收到部分响应时立即调用
-             * - 作用 ：实时处理流式响应，将其打印到控制台
-             * - 特点 ：可以多次调用，每次调用处理部分响应
-             * - 类比 ：就像在写文章时，每写一个句子就打印出来一样
-             */
+
             @Override
             public void onPartialResponse(String partialResponse) {
                 System.out.print(partialResponse);
             }
 
-            /**
-             * - 触发时机 ：完整响应接收完成后调用
-             * - 作用 ：将完整响应存储到 CompletableFuture 中
-             * - 特点 ：只调用一次（如果出错）
-             * - 类比 ：就像在写文章时，写完最后一句话后，需要存储完整的内容一样
-             */
+
             @Override
             public void onCompleteResponse(ChatResponse completeResponse) {
                 futureChatResponse.complete(completeResponse);
             }
 
-            /**
-             * - 触发时机 ：在处理流式响应时发生错误时调用
-             * - 作用 ：将错误存储到 CompletableFuture 中
-             * - 特点 ：只调用一次（如果出错）
-             * - 类比 ：就像在写文章时，如果发生错误，需要记录下来一样
-             */
+
             @Override
             public void onError(Throwable error) {
                 futureChatResponse.completeExceptionally(error);

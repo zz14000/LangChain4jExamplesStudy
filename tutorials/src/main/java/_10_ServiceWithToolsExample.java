@@ -13,21 +13,21 @@ public class _10_ServiceWithToolsExample {
 
     static class Calculator {
 
-        @Tool("Calculates the length of a string")
+        @Tool("计算字符串的长度")
         int stringLength(String s) {
-            System.out.println("Called stringLength() with s='" + s + "'");
+            System.out.println("调用了 stringLength()，参数 s='" + s + "'");
             return s.length();
         }
 
-        @Tool("Calculates the sum of two numbers")
+        @Tool("计算两个数字的和")
         int add(int a, int b) {
-            System.out.println("Called add() with a=" + a + ", b=" + b);
+            System.out.println("调用了 add()，参数 a=" + a + ", b=" + b);
             return a + b;
         }
 
-        @Tool("Calculates the square root of a number")
+        @Tool("计算一个数的平方根")
         double sqrt(int x) {
-            System.out.println("Called sqrt() with x=" + x);
+            System.out.println("调用了 sqrt()，参数 x=" + x);
             return Math.sqrt(x);
         }
     }
@@ -40,10 +40,10 @@ public class _10_ServiceWithToolsExample {
     public static void main(String[] args) {
 
         ChatModel model = OpenAiChatModel.builder()
-                .apiKey(ApiKeys.OPENAI_API_KEY) // WARNING! Tools are not supported with "demo" API key
+                .apiKey(ApiKeys.OPENAI_API_KEY) // 警告！工具不支持 "demo" API 密钥
                 .baseUrl("https://api.deepseek.com")
                 .modelName("deepseek-v4-flash")
-                .strictTools(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-tools
+                .strictTools(true) // https://docs.langchain4j.dev/integrations/language-models/open-ai#structured-outputs-for-tools（工具的结构化输出）
                 .build();
 
         Assistant assistant = AiServices.builder(Assistant.class)
@@ -57,6 +57,6 @@ public class _10_ServiceWithToolsExample {
         String answer = assistant.chat(question);
 
         System.out.println(answer);
-        // The square root of the sum of the number of letters in the words "hello" and "world" is approximately 3.162.
+        // "hello"和"world"两个单词的字母数之和的平方根约为 3.162。
     }
 }

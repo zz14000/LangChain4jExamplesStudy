@@ -25,29 +25,29 @@ import java.util.concurrent.Executors;
 public class _6_Composed_Workflow_Example {
 
     static {
-        CustomLogging.setLevel(LogLevels.PRETTY, 300);  // control how much you see from the model calls
+        CustomLogging.setLevel(LogLevels.PRETTY, 300);  // 控制模型调用的日志输出量
     }
 
     /**
-     * Every agent, whether a single-task agent, a sequential workflow,..., is still an Agent object.
-     * This makes agents fully composable. You can
-     * - bundle smaller agents into super-agents
-     * - decompose tasks with sub-agents
-     * - mix sequential, parallel, loop, supervisor, ... workflows at any level
-     * In this example, we’ll take the composed agents we built earlier (sequential, parallel, etc.)
-     * and combine them into two larger composed agents that orchestrate the entire application process.
+     * 每个智能体，无论是单任务智能体、顺序工作流等，都仍然是一个 Agent 对象。
+     * 这使得智能体完全可组合。你可以
+     * - 将较小的智能体捆绑成超级智能体
+     * - 用子智能体分解任务
+     * - 在任何层级混合顺序、并行、循环、监督者等工作流
+     * 在本示例中，我们将之前构建的组合智能体（顺序、并行等）
+     * 组合成两个更大的组合智能体，编排整个申请流程。
      */
 
-    // 1. Define the model that will power the agents
+    // 1. 定义驱动智能体的模型
     private static final ChatModel CHAT_MODEL = ChatModelProvider.createChatModel();
 
     public static void main(String[] args) throws IOException {
 
-        ////////////////// CANDIDATE COMPOSED WORKFLOW //////////////////////
-        // We'll go from life story > CV > Review > review loop until we pass
-        // then email our CV to the company
+        ////////////////// 候选人组合工作流 //////////////////////
+        // 我们将从人生故事 > 简历 > 审查 > 审查循环直到通过
+        // 然后将简历发送给公司
 
-        // 1. Create all necessary agents for candidate workflow
+        // 1. 创建候选人工作流所需的所有智能体
         CvGenerator cvGenerator = AgenticServices
                 .agentBuilder(CvGenerator.class)
                 .chatModel(CHAT_MODEL)
@@ -66,49 +66,49 @@ public class _6_Composed_Workflow_Example {
                 .outputKey("cvReview")
                 .build();
 
-        // 2. Create the loop workflow for CV improvement
+        // 2. 创建简历改进的循环工作流
         UntypedAgent cvImprovementLoop = AgenticServices
                 .loopBuilder()
                 .subAgents(scoredCvTailor, cvReviewer)
                 .outputKey("cv")
                 .exitCondition(agenticScope -> {
                     CvReview review = (CvReview) agenticScope.readState("cvReview");
-                    System.out.println("CV Review Score: " + review.score);
+                    System.out.println("简历审查评分：" + review.score);
                     if (review.score >= 0.8)
-                        System.out.println("CV is good enough, exiting loop.\n");
+                        System.out.println("简历足够好，退出循环。\n");
                     return review.score >= 0.8;
                 })
                 .maxIterations(3)
                 .build();
 
-        // 3. Create the complete candidate workflow: Generate > Review > Improve Loop
+        // 3. 创建完整的候选人工作流：生成 > 审查 > 改进循环
         CandidateWorkflow candidateWorkflow = AgenticServices
                 .sequenceBuilder(CandidateWorkflow.class)
                 .subAgents(cvGenerator, cvReviewer, cvImprovementLoop)
-                // here we use the composed agent cvImprovementLoop inside the sequenceBuilder
-                // we also need the cvReviewer in order to generate a first review before entering the loop
+                // 这里我们在 sequenceBuilder 中使用组合智能体 cvImprovementLoop
+                // 我们还需要 cvReviewer 以便在进入循环之前生成首次审查
                 .outputKey("cv")
                 .build();
 
-        // 4. Load input data
+        // 4. 加载输入数据
         String lifeStory = StringLoader.loadFromResource("/documents/user_life_story.txt");
         String jobDescription = StringLoader.loadFromResource("/documents/job_description_backend.txt");
 
-        // 5. Execute the candidate workflow
+        // 5. 执行候选人工作流
         String candidateResult = candidateWorkflow.processCandidate(lifeStory, jobDescription);
-        // Note that input parameters and intermediate parameters are all stored in one AgenticScope
-        // that is available to all agents in the system, no matter how many levels of composition we have
+        // 注意，输入参数和中间参数都存储在一个 AgenticScope 中
+        // 该 AgenticScope 对系统中的所有智能体可用，无论有多少层组合
 
-        System.out.println("=== CANDIDATE WORKFLOW COMPLETED ===");
-        System.out.println("Final CV: " + candidateResult);
+        System.out.println("=== 候选人工作流完成 ===");
+        System.out.println("最终简历：" + candidateResult);
 
         System.out.println("\n\n\n\n");
 
-        ////////////////// HIRING TEAM COMPOSED WORKFLOW //////////////////////
-        // We receive an email with the candidate CV and contacts. We did the phone HR interview.
-        // We now go through the 3 parallel reviews then send that result into the conditional flow to invite or reject.
+        ////////////////// 招聘团队组合工作流 //////////////////////
+        // 我们收到一封包含候选人简历和联系方式的邮件。我们完成了电话HR面试。
+        // 现在我们进行3个并行审查，然后将结果发送到条件流程中邀请或拒绝。
 
-        // 1. Create all necessary agents for hiring team workflow
+        // 1. 创建招聘团队工作流所需的所有智能体
         HrCvReviewer hrCvReviewer = AgenticServices
                 .agentBuilder(HrCvReviewer.class)
                 .chatModel(CHAT_MODEL)
@@ -139,7 +139,7 @@ public class _6_Composed_Workflow_Example {
                 .tools(new OrganizingTools())
                 .build();
 
-        // 2. Create parallel review workflow
+        // 2. 创建并行审查工作流
         UntypedAgent parallelReviewWorkflow = AgenticServices
                 .parallelBuilder()
                 .subAgents(hrCvReviewer, managerCvReviewer, teamMemberCvReviewer)
@@ -150,36 +150,36 @@ public class _6_Composed_Workflow_Example {
                     CvReview managerReview = (CvReview) agenticScope.readState("managerReview");
                     CvReview teamMemberReview = (CvReview) agenticScope.readState("teamMemberReview");
                     String feedback = String.join("\n",
-                            "HR Review: " + hrReview.feedback,
-                            "Manager Review: " + managerReview.feedback,
-                            "Team Member Review: " + teamMemberReview.feedback
+                            "HR审查: " + hrReview.feedback,
+                            "经理审查: " + managerReview.feedback,
+                            "团队成员审查: " + teamMemberReview.feedback
                     );
                     double avgScore = (hrReview.score + managerReview.score + teamMemberReview.score) / 3.0;
-                    System.out.println("Final averaged CV Review Score: " + avgScore + "\n");
+                    System.out.println("最终平均简历审查评分：" + avgScore + "\n");
                     return new CvReview(avgScore, feedback);
                 })
                 .build();
 
-        // 3. Create conditional workflow for final decision
+        // 3. 创建最终决策的条件工作流
         UntypedAgent decisionWorkflow = AgenticServices
                 .conditionalBuilder()
                 .subAgents(agenticScope -> ((CvReview) agenticScope.readState("combinedCvReview")).score >= 0.8, interviewOrganizer)
                 .subAgents(agenticScope -> ((CvReview) agenticScope.readState("combinedCvReview")).score < 0.8, emailAssistant)
                 .build();
 
-        // 4. Create complete hiring team workflow: Parallel Review → Decision
+        // 4. 创建完整的招聘团队工作流：并行审查 → 决策
         HiringTeamWorkflow hiringTeamWorkflow = AgenticServices
                 .sequenceBuilder(HiringTeamWorkflow.class)
                 .subAgents(parallelReviewWorkflow, decisionWorkflow)
                 .build();
 
-        // 5. Load input data
+        // 5. 加载输入数据
         String candidateCv = StringLoader.loadFromResource("/documents/tailored_cv.txt");
         String candidateContact = StringLoader.loadFromResource("/documents/candidate_contact.txt");
         String hrRequirements = StringLoader.loadFromResource("/documents/hr_requirements.txt");
         String phoneInterviewNotes = StringLoader.loadFromResource("/documents/phone_interview_notes.txt");
 
-        // Put all data in a Map for easy access
+        // 将所有数据放入 Map 以便访问
         Map<String, Object> inputData = Map.of(
                 "candidateCv", candidateCv,
                 "candidateContact", candidateContact,
@@ -188,13 +188,13 @@ public class _6_Composed_Workflow_Example {
                 "jobDescription", jobDescription
         );
 
-        // 6. Execute the hiring team workflow
+        // 6. 执行招聘团队工作流
         hiringTeamWorkflow.processApplication(candidateCv, jobDescription, hrRequirements, phoneInterviewNotes, candidateContact);
 
-        System.out.println("=== HIRING TEAM WORKFLOW COMPLETED ===");
-        System.out.println("Parallel reviews completed and decision made");
+        System.out.println("=== 招聘团队工作流完成 ===");
+        System.out.println("并行审查已完成并做出决策");
 
-        // Note: as workflows become more complex, make sure that names of input, intermediate and output parameters
-        // are unique to avoid inadvertent overwriting of data in the shared AgenticScope
+        // 注意：随着工作流变得更复杂，请确保输入、中间和输出参数的名称
+        // 是唯一的，以避免在共享的 AgenticScope 中意外覆盖数据
     }
 }
